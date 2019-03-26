@@ -42,19 +42,11 @@ module LinkedIn
       File.basename(media.base_uri.request_uri)
     end
 
-    def extension(media)
-      upload_filename(media).split('.').last
-    end
-
-    def content_type(media)
-      ::MIME::Types.type_for(extension(media)).first.content_type
-    end
-
     def file(source_url, options)
       media = open(source_url, 'rb')
       io = StringIO.new(media.read)
       filename = options.delete(:disposition_filename) || upload_filename(media)
-      Faraday::UploadIO.new(io, content_type(media), filename)
+      Faraday::UploadIO.new(io, media.content_type, filename)
     end
   end
 end
