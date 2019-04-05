@@ -97,6 +97,17 @@ module LinkedIn
       get(path, options)
     end
 
+    # https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api#location-display-name
+    def location_by_places country_urn, place_code
+      path = "/places/country=#{country_urn}&placeCode=#{place_code}"
+      get(path, options = {})
+    end
+
+    # https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api#location-display-name
+    def location_by_regions standardized_location_urn
+      path = "/regions?q=standardizedLocation&standardizedLocation=#{standardized_location_urn}"
+      get(path, options = {})
+    end
 
     protected ############################################################
 

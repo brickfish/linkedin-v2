@@ -29,7 +29,9 @@ module LinkedIn
                              :skills,
                              :connections,
                              :picture_urls,
-                             :new_connections
+                             :new_connections,
+                             :location_by_places,
+                             :location_by_regions
 
     def_delegators :@search, :search
 
