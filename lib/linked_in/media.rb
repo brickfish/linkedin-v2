@@ -23,7 +23,6 @@ module LinkedIn
     #
     def upload(options = {})
       source_url = options.delete(:source_url)
-      test_url = "https://scontent-ort2-2.xx.fbcdn.net/v/t1.0-9/92571139_841576939695766_5109866619484504064_n.jpg?_nc_cat=103&_nc_sid=2d5d41&_nc_ohc=kzffbOhmQdEAX959JbO&_nc_ht=scontent-ort2-2.xx&oh=e98afa20bf9833f32cf069417610cf26&oe=5EB55454"
       registration_endpoint = '/assets?action=registerUpload'
 
       registration_body = {
@@ -45,7 +44,7 @@ module LinkedIn
       mash_registration_response = Mash.from_json(registration_response.body)['value']
       upload_url = mash_registration_response['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl']
       asset = mash_registration_response['asset']
-      fileData = file(test_url, options)
+      fileData = file(source_url, options)
 
       response =
         @connection.put(upload_url, fileData) do |req|
