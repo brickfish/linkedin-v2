@@ -1,8 +1,6 @@
 require 'mime/types'
 
 module LinkedIn
-  DEFAULT_TIMEOUT_SECONDS = 300
-
   # Rich Media APIs
   #
   # @see https://developer.linkedin.com/docs/guide/v2/shares/rich-media-shares
@@ -25,15 +23,37 @@ module LinkedIn
     #
     def upload(options = {})
       source_url = options.delete(:source_url)
-      timeout = options.delete(:timeout) || DEFAULT_TIMEOUT_SECONDS
-      media_upload_endpoint = LinkedIn.config.api + '/media/upload'
+      test_url = "https://scontent-ort2-2.xx.fbcdn.net/v/t1.0-9/92571139_841576939695766_5109866619484504064_n.jpg?_nc_cat=103&_nc_sid=2d5d41&_nc_ohc=kzffbOhmQdEAX959JbO&_nc_ht=scontent-ort2-2.xx&oh=e98afa20bf9833f32cf069417610cf26&oe=5EB55454"
+      registration_endpoint = '/assets?action=registerUpload'
+
+      registration_body = {
+        "registerUploadRequest": {
+          "owner": options[:owner],
+          "recipes": [
+            "urn:li:digitalmediaRecipe:feedshare-image"
+          ],
+          "serviceRelationships": [
+            {
+              "identifier": "urn:li:userGeneratedContent",
+              "relationshipType": "OWNER"
+            }
+          ]
+        }
+      }
+
+      registration_response = post(registration_endpoint,  MultiJson.dump(registration_body), "Content-Type" => "application/json")
+      mash_registration_response = Mash.from_json(registration_response.body)['value']
+      upload_url = mash_registration_response['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl']
+      asset = mash_registration_response['asset']
+      fileData = file(test_url, options)
+
       response =
-        @connection.post(media_upload_endpoint, file: file(source_url, options)) do |req|
-          req.headers['Accept'] = 'application/json'
-          req.options.timeout = timeout
-          req.options.open_timeout = timeout
+        @connection.put(upload_url, fileData) do |req|
+          req.headers['Content-Length'] = req.body.length.to_s
+          req.headers['Content-Type'] = fileData.content_type
         end
-      Mash.from_json(response.body)
+
+      asset
     end
 
     private
